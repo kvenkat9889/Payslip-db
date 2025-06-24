@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres44
+    ports:
+      - "6667:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: payslip_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - payslip_net
+
+  backend:
+    build: ./Backend
+    container_name: backend44
+    ports:
+      - "3340:3340"
+    depends_on:
+      - postgres
+    networks:
+      - payslip_net
+
+  employee-side:
+    build: ./Employee-Side
+    container_name: employee-side44
+    ports:
+      - "6662:80"
+    depends_on:
+      - backend
+    networks:
+      - payslip_net
+
+  hr-side:
+    build: ./HR-Side
+    container_name: hr-side44
+    ports:
+      - "6663:80"
+    depends_on:
+      - backend
+    networks:
+      - payslip_net
+
+volumes:
+  pgdata:
+
+networks:
+  payslip_net:
+
